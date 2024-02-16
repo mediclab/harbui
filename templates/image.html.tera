@@ -1,0 +1,55 @@
+{% extends "base" %}
+
+{% block content %}
+<!--Container-->
+<div class="container w-full mx-auto pt-20">
+    <div class="w-full px-4 md:px-0 md:mt-8 mb-16 text-gray-800 leading-normal">
+        <p class="p-3 text-gray-600 text-">{{ path }}</p>
+        {% for tag in tags -%}
+        <div class="flex flex-row flex-wrap flex-grow mt-2">
+            <div class="w-full p-3">
+                <!--Table Card-->
+                <div class="bg-white border rounded shadow">
+                    <div class="border-b p-3">
+                        <h5 class="font-bold uppercase text-gray-600">{{ tag }}</h5>
+                    </div>
+                    <div class="flow-root overflow-hidden">
+                        <div class="mx-auto px-4 sm:px-6 lg:px-8">
+                            <table class="w-full text-left">
+                                <thead class="bg-white">
+                                <tr>
+                                    <th scope="col" class="relative isolate py-3.5 pr-3 text-left text-sm font-semibold text-gray-900">
+                                        Image ID
+                                        <div class="absolute inset-y-0 right-full -z-10 w-screen border-b border-b-gray-200"></div>
+                                        <div class="absolute inset-y-0 left-0 -z-10 w-screen border-b border-b-gray-200"></div>
+                                    </th>
+                                    <th scope="col" class="hidden px-3 py-3.5 text-left text-sm font-semibold text-gray-900 sm:table-cell">Architecture</th>
+                                    <th scope="col" class="hidden px-3 py-3.5 text-left text-sm font-semibold text-gray-900 sm:table-cell">Author</th>
+                                    <th scope="col" class="hidden px-3 py-3.5 text-left text-sm font-semibold text-gray-900 sm:table-cell">Size</th>
+                                </tr>
+                                </thead>
+                                <tbody class="bg-white" x-data="{ manifests: [] }" x-init="manifests = (await (await fetch('/api/{{ path }}/{{ tag }}')).json()).manifests">
+                                <template x-for="manifest in manifests">
+                                    <tr class="even:bg-gray-50">
+                                        <td class="relative py-4 pr-3 text-sm font-medium text-gray-900">
+                                            <div x-text="manifest.digest"></div>
+                                            <div class="absolute bottom-0 right-full h-px w-screen bg-gray-100"></div>
+                                            <div class="absolute bottom-0 left-0 h-px w-screen bg-gray-100"></div>
+                                        </td>
+                                        <td class="hidden px-3 py-4 text-sm text-gray-500 sm:table-cell" x-text="manifest.os + '/' + manifest.architecture"></td>
+                                        <td class="hidden px-3 py-4 text-sm text-gray-500 sm:table-cell" x-text="manifest.author"></td>
+                                        <td class="hidden px-3 py-4 text-sm text-gray-500 sm:table-cell" x-text="humanFileSize(manifest.total_size)"></td>
+                                    </tr>
+                                </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!--/table Card-->
+            </div>
+        </div>
+        {%- endfor %}
+    </div>
+</div>
+{% endblock content %}

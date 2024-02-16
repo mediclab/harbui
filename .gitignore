@@ -1,0 +1,5 @@
+/target
+.idea/
+.env
+/public/css/style.css
+/public/node_modules/

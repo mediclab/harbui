@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>{{ page_title }}</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="/css/style.css"/>
+</head>
+
+<body class="bg-gray-100 font-sans leading-normal tracking-normal flex flex-col h-screen justify-between">
+    <header>
+        {% include "nav" %}
+    </header>
+
+    <main class="mb-auto">
+        {% block content %}{% endblock content %}
+    </main>
+
+    <footer class="bg-white shadow">
+         {% include "footer" %}
+    </footer>
+</body>
+
+<script lang="javascript">
+    /**
+     * Format bytes as human-readable text.
+     *
+     * @param bytes Number of bytes.
+     * @param si True to use metric (SI) units, aka powers of 1000. False to use
+     *           binary (IEC), aka powers of 1024.
+     * @param dp Number of decimal places to display.
+     *
+     * @return Formatted string.
+     */
+    function humanFileSize(bytes, si=false, dp=1) {
+        const thresh = si ? 1000 : 1024;
+
+        if (Math.abs(bytes) < thresh) {
+            return bytes + ' B';
+        }
+
+        const units = si
+            ? ['kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+            : ['KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
+        let u = -1;
+        const r = 10**dp;
+
+        do {
+            bytes /= thresh;
+            ++u;
+        } while (Math.round(Math.abs(bytes) * r) / r >= thresh && u < units.length - 1);
+
+
+        return bytes.toFixed(dp) + ' ' + units[u];
+    }
+</script>
+
+</html>

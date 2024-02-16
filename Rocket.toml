@@ -1,0 +1,14 @@
+[default]
+address = "127.0.0.1"
+port = 8000
+limits = { form = "64 kB", json = "1 MiB" }
+ident = "HarboUI Server"
+
+[debug]
+limits = { json = "10MiB" }
+log_level = "debug"
+
+[release]
+ip_header = "X-Real-IP"
+cli_colors = false
+log_level = "critical"
