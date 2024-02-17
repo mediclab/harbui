@@ -1,6 +1,7 @@
 module.exports = {
-    purge: ['../templates/**/*.html.tera'],
-    darkMode: false,
+    content: [
+        '../templates/**/*.html.tera'
+    ],
     theme: {
         extend: {},
     },

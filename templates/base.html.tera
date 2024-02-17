@@ -17,11 +17,11 @@
         {% include "nav" %}
     </header>
 
-    <main class="mb-auto">
+    <main class="mb-auto pb-8">
         {% block content %}{% endblock content %}
     </main>
 
-    <footer class="bg-white shadow">
+    <footer class="fixed bottom-0 left-0 z-20 w-full p-4 bg-white border-t border-gray-200 shadow md:flex md:items-center md:justify-between md:p-6">
          {% include "footer" %}
     </footer>
 </body>
