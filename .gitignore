@@ -1,5 +1,4 @@
 /target
 .idea/
 .env
-/public/css/style.css
-/public/node_modules/
+/resources/css/style.css
