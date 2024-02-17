@@ -18,5 +18,5 @@ pub struct ImageManifest {
 #[derive(Serialize, Deserialize, Clone, Debug, Default)]
 pub struct Manifests {
     pub tag: String,
-    pub image_manifests: Vec<ImageManifest>
+    pub image_manifests: Vec<ImageManifest>,
 }
