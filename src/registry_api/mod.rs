@@ -8,26 +8,48 @@ pub mod types;
 
 #[derive(Clone, Debug)]
 pub struct Config {
-    pub base_domain: String,
+    pub base_uri: String,
     pub is_secured: bool,
+    pub http_basic_user: Option<String>,
+    pub http_basic_pass: Option<String>,
 }
 
 #[derive(Clone, Debug)]
 pub struct RegistryClient {
     client: reqwest::Client,
     url: String,
+    basic_auth: Option<BasicAuth>,
+}
+
+#[derive(Clone, Debug)]
+struct BasicAuth {
+    pub http_basic_user: String,
+    pub http_basic_pass: Option<String>,
 }
 
 impl RegistryClient {
-    pub fn new(config: Config) -> Self {
+    pub fn new(config: &Config) -> Self {
         let client = reqwest::Client::builder().build().unwrap();
         let url = if config.is_secured {
-            format!("https://{}", config.base_domain)
+            format!("https://{}", config.base_uri)
         } else {
-            format!("http://{}", config.base_domain)
+            format!("http://{}", config.base_uri)
         };
 
-        Self { client, url }
+        let basic_auth = if config.http_basic_user.is_some() {
+            Some(BasicAuth {
+                http_basic_user: config.http_basic_user.clone().unwrap(),
+                http_basic_pass: config.http_basic_pass.clone(),
+            })
+        } else {
+            None
+        };
+
+        Self {
+            client,
+            url,
+            basic_auth,
+        }
     }
 
     pub async fn get_catalog(&self) -> Result<CatalogResponse> {
@@ -79,7 +101,12 @@ impl RegistryClient {
     where
         T: DeserializeOwned,
     {
-        match request.send().await {
+        let mut req = request;
+        if let Some(basic_auth) = self.basic_auth.clone() {
+            req = req.basic_auth(basic_auth.http_basic_user, basic_auth.http_basic_pass);
+        }
+
+        match req.send().await {
             Ok(res) => {
                 let digest = res
                     .headers()
