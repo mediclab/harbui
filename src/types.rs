@@ -1,4 +1,19 @@
+use envconfig::Envconfig;
 use serde::{Deserialize, Serialize};
+
+#[derive(Envconfig, Clone)]
+pub struct Config {
+    #[envconfig(from = "REGISTRY_HOST")]
+    pub host: String,
+    #[envconfig(from = "REGISTRY_UNSECURED", default = "false")]
+    pub unsecured: bool,
+    #[envconfig(from = "REGISTRY_HTTP_BASIC_USER")]
+    pub http_basic_user: Option<String>,
+    #[envconfig(from = "REGISTRY_HTTP_BASIC_PASSWORD")]
+    pub http_basic_pass: Option<String>,
+    #[envconfig(from = "HARBUI_VERSION", default = "dev")]
+    pub version: String,
+}
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct ImageTags {

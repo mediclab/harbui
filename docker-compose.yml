@@ -4,5 +4,5 @@ services:
     ports:
       - 8000:8000
     environment:
-      REGISTRY_DOMAIN: registry.example.com
+      REGISTRY_HOST: registry.example.com
       ROCKET_SECRET_KEY: "+ZnzMJwnM/VpGmZ4nkPAllCfU8cqlzRSQmpA8p3WRqA="
