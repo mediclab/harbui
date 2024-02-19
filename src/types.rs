@@ -11,6 +11,8 @@ pub struct Config {
     pub http_basic_user: Option<String>,
     #[envconfig(from = "REGISTRY_HTTP_BASIC_PASSWORD")]
     pub http_basic_pass: Option<String>,
+    #[envconfig(from = "HARBUI_DELETING_ALLOWED", default = "false")]
+    pub deleting_allowed: bool,
     #[envconfig(from = "HARBUI_VERSION", default = "dev")]
     pub version: String,
 }

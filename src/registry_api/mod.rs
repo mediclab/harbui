@@ -1,7 +1,7 @@
 use crate::registry_api::types::*;
 use anyhow::{bail, Result};
 use reqwest::header::ACCEPT;
-use reqwest::RequestBuilder;
+use reqwest::{RequestBuilder, StatusCode};
 use serde::de::DeserializeOwned;
 
 pub mod types;
@@ -88,6 +88,37 @@ impl RegistryClient {
             digest: ans.1.unwrap_or_default(),
             reference: reference.into(),
         })
+    }
+
+    pub async fn delete_manifest(&self, name: &str, reference: &str) -> Result<bool> {
+        let request = self
+            .client
+            .delete(format!("{}/v2/{}/manifests/{}", self.url, name, reference))
+            .header(
+                ACCEPT,
+                [
+                    MediaType::OCIImageIndexV1.to_string(),
+                    MediaType::OCIImageManifestV1.to_string(),
+                    MediaType::DockerDistributionManifestV2.to_string(),
+                    MediaType::DockerDistributionManifestListV2.to_string(),
+                ]
+                .join(", "),
+            );
+
+        match request.send().await {
+            Ok(ans) => {
+                return if ans.status() == StatusCode::ACCEPTED {
+                    Ok(true)
+                } else {
+                    error!("Status code not 202 ACCEPTED. Status code = {:?}", ans.status());
+                    Ok(false)
+                }
+            }
+            Err(e) => {
+                error!("Error getting response: {:?}", e);
+                bail!(e)
+            }
+        };
     }
 
     pub async fn get_config(&self, name: &str, digest: &str) -> Result<(ImageConfigResponse, String)> {

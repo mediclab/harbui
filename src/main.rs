@@ -35,7 +35,7 @@ async fn main() -> Result<(), rocket::Error> {
                 routes::pages::index,
                 routes::pages::image,
                 routes::pages::pulling,
-                routes::pages::pushing
+                routes::pages::pushing,
             ],
         )
         .mount(
@@ -44,10 +44,11 @@ async fn main() -> Result<(), rocket::Error> {
                 routes::api::get_repositories,
                 routes::api::get_images_by_tag,
                 routes::api::count_users,
-                routes::api::count_repositories
+                routes::api::count_repositories,
+                routes::api::delete_image,
             ],
         )
-        .mount("/css", FileServer::from("public/css"))
+        .mount("/assets", FileServer::from("public"))
         .attach(Template::fairing())
         .launch()
         .await?;

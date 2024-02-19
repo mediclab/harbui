@@ -1,6 +1,6 @@
 module.exports = {
     content: [
-        '../templates/**/*.html.tera'
+        '../templates/**/*.html.{tera,js}'
     ],
     theme: {
         extend: {},

@@ -100,7 +100,7 @@ pub struct CatalogResponse {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct TagsResponse {
     pub name: String,
-    pub tags: Vec<String>,
+    pub tags: Option<Vec<String>>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
