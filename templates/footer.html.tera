@@ -1,4 +1,0 @@
-<span class="text-sm text-gray-500 sm:text-center">v.{{ version }} © 2024 MedicLab. All Rights Reserved.</span>
-<div class="mt-3 text-sm font-medium text-gray-500 sm:mt-0">
-    <a href="https://github.com/mediclab" rel="nofollow" class="flex flex-wrap items-center"><i class="fa-brands fa-github fa-2x pr-3"></i> Follow me</a>
-</div>

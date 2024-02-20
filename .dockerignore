@@ -3,3 +3,5 @@
 .env
 /public/
 /resources/node_modules/
+/resources/.*/
+/resources/dist/

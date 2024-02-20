@@ -1,5 +1,7 @@
+use rocket::http::Status;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::fmt;
 use std::fmt::Display;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -13,13 +15,6 @@ pub enum Manifest {
     DockerDistributionManifestV2(DockerDistributionManifestV2),
     #[serde(rename = "application/vnd.docker.distribution.manifest.list.v2+json")]
     DockerDistributionManifestListV2(DockerDistributionManifestListV2),
-}
-
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct ManifestResponse {
-    pub manifest: Manifest,
-    pub digest: String,
-    pub reference: String,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -166,3 +161,84 @@ pub struct ImageConfig {
     #[serde(rename = "Labels")]
     pub labels: Option<HashMap<String, String>>,
 }
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum ErrorCode {
+    BlobUnknown,
+    BlobUploadInvalid,
+    BlobUploadUnknown,
+    DigestInvalid,
+    ManifestBlobUnknown,
+    ManifestInvalid,
+    ManifestUnknown,
+    ManifestUnverified,
+    NameInvalid,
+    NameUnknown,
+    PaginationNumberInvalid,
+    RangeInvalid,
+    SizeInvalid,
+    TagInvalid,
+    Unauthorized,
+    Denied,
+    Unsupported,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct RegistryError {
+    pub code: ErrorCode,
+    pub message: String,
+    pub detail: HashMap<String, String>,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, Default)]
+pub struct RegistryErrors {
+    #[serde(skip_deserializing, default = "default_message")]
+    pub message: String,
+    pub errors: Vec<RegistryError>,
+}
+
+fn default_message() -> String {
+    "Registry answer error".to_string()
+}
+
+impl Display for RegistryErrors {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let errors = self
+            .errors
+            .iter()
+            .map(|i| format!("{:?}: {}", i.code, i.message))
+            .collect::<Vec<String>>()
+            .join("\n");
+
+        write!(f, "{}", &errors)
+    }
+}
+
+impl RegistryErrors {
+    pub fn custom(message: &str) -> Self {
+        Self {
+            message: message.to_string(),
+            errors: Vec::new(),
+        }
+    }
+}
+
+#[derive(Clone, Debug, Default)]
+pub struct RegistryAnswer<T> {
+    pub digest: Option<String>,
+    pub content: T,
+    pub status: Status,
+}
+
+impl<T> RegistryAnswer<T> {
+    pub fn new(status: u16, content: T, digest: Option<String>) -> Self {
+        Self {
+            status: Status::new(status),
+            content,
+            digest,
+        }
+    }
+}
+
+pub type RegistryResponse<T> = Result<RegistryAnswer<T>, RegistryErrors>;

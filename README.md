@@ -12,7 +12,15 @@
 
 ### HarbUI - Docker Registry UI
 
+Docker Registry UI supports manifests mediaTypes:
+
+* vnd.docker.distribution.manifest.list.v2+json
+* vnd.docker.distribution.manifest.v2+json
+* vnd.oci.image.index.v1+json
+* vnd.oci.image.manifest.v1+json
+
 Example docker-compose.yml file:
+
 ```
 services:
   harbui:
@@ -36,9 +44,9 @@ Environment variables:
 | REGISTRY_HTTP_BASIC_PASSWORD | false    | None    | If your registry API closed by HTTP-Basic Auth you can provide credinitials             |
 
 ### Next:
+
 1. Pagination (for tags not working - [issue](https://github.com/distribution/distribution/issues/1936))
 2. Authorization
 3. Image details page
-
 
 <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/mediclab/harbui">

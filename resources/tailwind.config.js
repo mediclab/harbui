@@ -1,14 +1,19 @@
-module.exports = {
+/** @type {import('tailwindcss').Config} */
+export default {
     content: [
-        '../templates/**/*.html.{tera,js}'
+        `components/**/*.{vue,js}`,
+        `layouts/**/*.vue`,
+        `pages/**/*.vue`,
+        `composables/**/*.{js,ts}`,
+        `plugins/**/*.{js,ts}`,
+        `App.{js,ts,vue}`,
+        `app.{js,ts,vue}`
     ],
     theme: {
         extend: {},
     },
-    variants: {
-        extend: {
-            animation: ['group-hover']
-        },
-    },
-    plugins: [],
+    plugins: [
+        require('@tailwindcss/forms'),
+    ],
 }
+
