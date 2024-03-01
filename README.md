@@ -1,7 +1,7 @@
 <h1 style="text-align: center">HarbUI</h1>
 
 <p align="center">
-    <img src="https://github.com/mediclab/harbui/assets/1334139/d5704c99-1334-4455-853e-d458a7d2ae10">
+    <img src="https://github.com/mediclab/harbui/assets/1334139/13cddfda-0228-4de9-a0c6-4ca7bdcc2028">
 </p>
 
 <p align="center">
