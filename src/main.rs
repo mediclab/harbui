@@ -6,7 +6,6 @@ use crate::types::Config as AppConfig;
 use dotenv::dotenv;
 use envconfig::Envconfig;
 use rocket::fs::FileServer;
-use rocket_dyn_templates::Template;
 
 mod manager;
 mod registry_api;
@@ -30,25 +29,20 @@ async fn main() -> Result<(), rocket::Error> {
         .manage(config.clone())
         .manage(RegistryClient::new(&registry_config))
         .mount(
-            "/",
-            routes![
-                routes::pages::index,
-                routes::pages::image,
-                routes::pages::pulling,
-                routes::pages::pushing
-            ],
-        )
-        .mount(
             "/api",
             routes![
                 routes::api::get_repositories,
                 routes::api::get_images_by_tag,
+                routes::api::get_tags,
+                routes::api::get_config,
                 routes::api::count_users,
-                routes::api::count_repositories
+                routes::api::count_repositories,
+                routes::api::delete_image,
             ],
         )
-        .mount("/css", FileServer::from("public/css"))
-        .attach(Template::fairing())
+        .mount("/image", routes![routes::image])
+        .mount("/", FileServer::from("public"))
+        .register("/", catchers![routes::error_handler])
         .launch()
         .await?;
 

@@ -1,19 +1,28 @@
 {
-  "name": "harboui",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "harbui-frontend",
+  "private": true,
+  "type": "module",
   "scripts": {
-    "dev": "npx tailwindcss -i ./css/tailwind.css -o ./../public/css/style.css",
-    "prod": "npx tailwindcss -i ./css/tailwind.css -o ./../public/css/style.css --minify"
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
   },
-  "author": "",
-  "license": "ISC",
   "dependencies": {
-    "alpinejs": "^3.13.5",
-    "autoprefixer": "^10.4",
-    "minify": "^11.0.1",
-    "postcss": "^8.4",
-    "tailwindcss": "^3.4"
+    "@fortawesome/fontawesome-svg-core": "^6.5.1",
+    "@fortawesome/free-brands-svg-icons": "^6.5.1",
+    "@fortawesome/free-solid-svg-icons": "^6.5.1",
+    "@fortawesome/vue-fontawesome": "^3.0.6",
+    "@headlessui/vue": "^1.7.19",
+    "@heroicons/vue": "^2.1.1",
+    "@tailwindcss/forms": "^0.5.7",
+    "humps": "^2.0.1",
+    "nuxt": "^3.10.2",
+    "vue": "^3.4.19",
+    "vue-router": "^4.2.5"
+  },
+  "devDependencies": {
+    "@nuxtjs/tailwindcss": "^6.11.4"
   }
 }

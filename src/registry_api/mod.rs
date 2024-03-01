@@ -1,5 +1,4 @@
 use crate::registry_api::types::*;
-use anyhow::{bail, Result};
 use reqwest::header::ACCEPT;
 use reqwest::RequestBuilder;
 use serde::de::DeserializeOwned;
@@ -52,21 +51,19 @@ impl RegistryClient {
         }
     }
 
-    pub async fn get_catalog(&self) -> Result<CatalogResponse> {
+    pub async fn get_catalog(&self) -> RegistryResponse<CatalogResponse> {
         let request = self.client.get(format!("{}/v2/_catalog", self.url));
-        let ans = self.send::<CatalogResponse>(request).await?;
 
-        Ok(ans.0)
+        self.send::<CatalogResponse>(request).await
     }
 
-    pub async fn get_tags(&self, image: &str) -> Result<TagsResponse> {
+    pub async fn get_tags(&self, image: &str) -> RegistryResponse<TagsResponse> {
         let request = self.client.get(format!("{}/v2/{}/tags/list", self.url, image));
-        let ans = self.send::<TagsResponse>(request).await?;
 
-        Ok(ans.0)
+        self.send::<TagsResponse>(request).await
     }
 
-    pub async fn get_manifest(&self, name: &str, reference: &str) -> Result<ManifestResponse> {
+    pub async fn get_manifest(&self, name: &str, reference: &str) -> RegistryResponse<Manifest> {
         let request = self
             .client
             .get(format!("{}/v2/{}/manifests/{}", self.url, name, reference))
@@ -81,23 +78,34 @@ impl RegistryClient {
                 .join(", "),
             );
 
-        let ans = self.send::<Manifest>(request).await?;
-
-        Ok(ManifestResponse {
-            manifest: ans.0,
-            digest: ans.1.unwrap_or_default(),
-            reference: reference.into(),
-        })
+        self.send::<Manifest>(request).await
     }
 
-    pub async fn get_config(&self, name: &str, digest: &str) -> Result<(ImageConfigResponse, String)> {
+    pub async fn delete_manifest(&self, name: &str, reference: &str) -> RegistryResponse<()> {
+        let request = self
+            .client
+            .delete(format!("{}/v2/{}/manifests/{}", self.url, name, reference))
+            .header(
+                ACCEPT,
+                [
+                    MediaType::OCIImageIndexV1.to_string(),
+                    MediaType::OCIImageManifestV1.to_string(),
+                    MediaType::DockerDistributionManifestV2.to_string(),
+                    MediaType::DockerDistributionManifestListV2.to_string(),
+                ]
+                .join(", "),
+            );
+
+        self.send::<()>(request).await
+    }
+
+    pub async fn get_config(&self, name: &str, digest: &str) -> RegistryResponse<ImageConfigResponse> {
         let request = self.client.get(format!("{}/v2/{}/blobs/{}", self.url, name, digest));
-        let ans = self.send::<ImageConfigResponse>(request).await?;
 
-        Ok((ans.0, digest.into()))
+        self.send::<ImageConfigResponse>(request).await
     }
 
-    async fn send<T>(&self, request: RequestBuilder) -> Result<(T, Option<String>)>
+    async fn send<T>(&self, request: RequestBuilder) -> RegistryResponse<T>
     where
         T: DeserializeOwned,
     {
@@ -113,20 +121,43 @@ impl RegistryClient {
                     .get("docker-content-digest")
                     .map(|h| String::from(h.to_str().unwrap_or_default()));
 
-                match res.json::<T>().await {
-                    Ok(content) => {
-                        return Ok((content, digest));
+                if res.status().is_success() {
+                    let status = res.status().as_u16();
+                    match res.json::<T>().await {
+                        Ok(content) => Ok(RegistryAnswer::new(status, content, digest)),
+                        Err(e) => {
+                            error!("Can't parse response: {:?}", e);
+                            Err(RegistryErrors::custom("Parse error"))
+                        }
                     }
-                    Err(e) => {
-                        error!("Can't parse response: {:?}", e);
+                } else if res.status().is_client_error() {
+                    match res.json::<RegistryErrors>().await {
+                        Ok(content) => Err(content),
+                        Err(e) => {
+                            error!("Can't parse error response: {:?}", e);
+                            Err(RegistryErrors::custom("Parse error"))
+                        }
                     }
-                };
+                } else if res.status().is_server_error() {
+                    error!(
+                        "Server error: {:?}. Server answer: {:?}",
+                        res.status(),
+                        res.text().await
+                    );
+                    Err(RegistryErrors::custom("Server error"))
+                } else {
+                    error!(
+                        "Unknown error: {:?}. Server answer: {:?}",
+                        res.status(),
+                        res.text().await
+                    );
+                    Err(RegistryErrors::custom("Unknown error"))
+                }
             }
             Err(e) => {
-                error!("Error occurred {:?}", e);
+                error!("Request error occurred {:?}", e);
+                Err(RegistryErrors::custom("Unknown error"))
             }
         }
-
-        bail!("Error occurred")
     }
 }
