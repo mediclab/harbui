@@ -71,6 +71,7 @@ pub async fn get_config(state: &State<Config>) -> ApiResponse<ConfigResponse> {
     ApiAnswer::success(ConfigResponse {
         registry_domain: state.host.clone(),
         version: state.version.clone(),
+        deleting_allowed: state.deleting_allowed,
     })
 }
 
@@ -121,8 +122,19 @@ pub async fn get_images_by_tag(
 }
 
 #[delete("/<user>/<name>/<tag>")]
-pub async fn delete_image(client: &State<RegistryClient>, user: &str, name: &str, tag: &str) -> ApiResponse<String> {
+pub async fn delete_image(
+    client: &State<RegistryClient>,
+    state: &State<Config>,
+    user: &str,
+    name: &str,
+    tag: &str,
+) -> ApiResponse<String> {
     let image = format!("{}/{}", user, name);
+
+    if !state.deleting_allowed {
+        return Err(ApiError::forbidden("DELETING_NOT_ALLOWED"));
+    }
+
     let image_manifest = match client.get_manifest(&image, tag).await {
         Ok(m) => m,
         Err(err) => return Err(ApiError::not_found(&err.message)),

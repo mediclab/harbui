@@ -15,6 +15,7 @@ pub struct CountResponse {
 pub struct ConfigResponse {
     pub registry_domain: String,
     pub version: String,
+    pub deleting_allowed: bool,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, Default)]
@@ -72,6 +73,13 @@ impl ApiError {
     pub fn not_found(message: &str) -> Self {
         Self {
             status: Status::NotFound,
+            message: message.to_owned(),
+        }
+    }
+
+    pub fn forbidden(message: &str) -> Self {
+        Self {
+            status: Status::Forbidden,
             message: message.to_owned(),
         }
     }

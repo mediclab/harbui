@@ -7,7 +7,7 @@ export default {
         `composables/**/*.{js,ts}`,
         `plugins/**/*.{js,ts}`,
         `App.{js,ts,vue}`,
-        `app.{js,ts,vue}`
+        `app.{js,ts,vue}`,
     ],
     theme: {
         extend: {},
